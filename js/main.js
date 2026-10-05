@@ -129,8 +129,69 @@
     checkoutInfo: 'sportcart_checkout_info_v1',
     orders: 'sportcart_orders_v1',
     helpful: 'sportcart_review_helpful_v1',
-    userReviews: 'sportcart_reviews_user_v1'
+    userReviews: 'sportcart_reviews_user_v1',
+    headCode: 'sportcart_headcode_v1'
   };
+
+  /* ==========================================================
+     2.5 CUSTOM HEAD CODE (site-owner tool)
+     Raw snippets (Google Tag Manager, analytics, meta verification…)
+     saved from the announcement-bar `</>` dialog are injected at the end
+     of <head> on EVERY page. Runs before first paint of the body, and
+     never lets a malformed snippet break the storefront.
+     ========================================================== */
+  var HEAD_MARK = 'data-stride-head';
+
+  function getHeadCode() {
+    var v = store.get(KEYS.headCode, '');
+    return typeof v === 'string' ? v : '';
+  }
+
+  function removeInjectedHeadCode() {
+    $all('[' + HEAD_MARK + ']', document.head).forEach(function (el) {
+      if (el.parentNode) { el.parentNode.removeChild(el); }
+    });
+  }
+
+  /* Parse the raw snippet and re-create its nodes in the live <head>.
+     <script> elements must be rebuilt manually — scripts inserted via
+     innerHTML/importNode never execute; freshly created ones do. */
+  function injectHeadCode(code) {
+    if (!code || !code.trim()) { return; }
+    var parsed = new DOMParser().parseFromString(code, 'text/html');
+    var nodes = [];
+    ['head', 'body'].forEach(function (part) {
+      Array.prototype.forEach.call(parsed[part].childNodes, function (n) { nodes.push(n); });
+    });
+    nodes.forEach(function (node) {
+      var el;
+      if (node.nodeType === 1 && node.tagName === 'SCRIPT') {
+        el = document.createElement('script');
+        Array.prototype.forEach.call(node.attributes, function (a) { el.setAttribute(a.name, a.value); });
+        el.textContent = node.textContent;
+      } else if (node.nodeType === 1) {
+        el = document.importNode(node, true);
+      } else {
+        return; // skip stray text/whitespace nodes
+      }
+      el.setAttribute(HEAD_MARK, '1');
+      document.head.appendChild(el);
+    });
+  }
+
+  function applyHeadCodeFromStore() {
+    try {
+      removeInjectedHeadCode();
+      injectHeadCode(getHeadCode());
+    } catch (e) {
+      /* A broken user snippet must never take the storefront down */
+      if (window.console && console.warn) { console.warn('STRIDE: custom head code could not be injected.', e); }
+    }
+  }
+
+  /* Inject immediately — before header/init work, as close to a real
+     "end of <head>" position as this page's script order allows. */
+  applyHeadCodeFromStore();
 
   /* ==========================================================
      3. ICONS (inline SVG, stroke-based)
@@ -171,6 +232,7 @@
     xsocial: '<path d="M4.5 4.5 19 19.5M19 4.5 4.5 19.5"/><path d="M4.5 4.5h3.4L19 19.5h-3.4z" fill="currentColor" stroke="none" opacity="0.25"/>',
     thumb: '<path d="M7 10.5v9H4.5a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z"/><path d="M7 10.5 11 3.2a2 2 0 0 1 2 2v3.3h5.3a1.8 1.8 0 0 1 1.8 2.1l-1.1 6.6a1.8 1.8 0 0 1-1.8 1.5H7"/>',
     info: '<circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16.5"/><circle cx="12" cy="7.8" r="0.4"/>',
+    code: '<polyline points="8.5 6.5 3.5 12 8.5 17.5"/><polyline points="15.5 6.5 20.5 12 15.5 17.5"/><line x1="13.4" y1="4.5" x2="10.6" y2="19.5"/>',
     tag: '<path d="M3.5 12.5 11 20a2 2 0 0 0 2.8 0l6.2-6.2a2 2 0 0 0 0-2.8L12.5 3.5H6a2.5 2.5 0 0 0-2.5 2.5z"/><circle cx="8.3" cy="8.3" r="1.3"/>'
   };
 
@@ -212,6 +274,7 @@
      ========================================================== */
   var toastRoot = null;
   function toast(message, type, duration) {
+    if (!toastRoot) { toastRoot = document.getElementById('toast-root'); } // lazy lookup — covers any call order
     if (!toastRoot) { return; }
     var t = document.createElement('div');
     t.className = 'toast toast--' + (type || 'info');
@@ -346,7 +409,11 @@
     root.innerHTML =
       '<div class="announcement" id="announcement-bar">' +
       '<span class="announcement__msg" data-msg>' + escapeHTML(ANNOUNCE_MSGS[0]) + '</span>' +
+      '<button type="button" class="announce-code-btn" id="headcode-btn" aria-haspopup="dialog" aria-label="Manage custom head code snippets">' +
+      icon('code', 14) + '<span class="announce-code-btn__label">Head code</span></button>' +
       '</div>';
+    var hcBtn = $('#headcode-btn');
+    if (hcBtn) { hcBtn.addEventListener('click', openHeadCodeModal); }
     var el = root.querySelector('[data-msg]');
     var idx = 0;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
@@ -551,6 +618,115 @@
     modal.addEventListener('click', function (e) {
       if (e.target === modal && openLayer && openLayer.name === 'policy') { openLayer.close(); }
     });
+  }
+
+  /* ------------------------------------------------------------
+     8.5 CUSTOM HEAD CODE MANAGER (announcement-bar `</>` button)
+     Site-owner dialog: paste GTM / analytics / verification snippets,
+     save to localStorage, inject live + on every future page load.
+     ------------------------------------------------------------ */
+  function buildHeadCodeModal() {
+    if ($('#headcode-modal')) { return; } // build once
+    var modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'headcode-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'headcode-title');
+    modal.innerHTML =
+      '<div class="modal__box modal__box--wide">' +
+      '  <div class="modal__head">' +
+      '    <h3 class="modal__title modal__title--icon" id="headcode-title">' + icon('code', 20) + ' Custom head code</h3>' +
+      '    <button type="button" class="drawer__close modal__close" aria-label="Close dialog">' + icon('x', 20) + '</button>' +
+      '  </div>' +
+      '  <div class="modal__body">' +
+      '    <p class="headcode-hint">Paste third-party snippets below — Google Tag Manager, Analytics, Search Console verification, meta tags, structured data. They are injected at the end of the <code>&lt;head&gt;</code> section, right before <code>&lt;/head&gt;</code>, on <strong>every page</strong> of this site.</p>' +
+      '    <div class="headcode-status" id="headcode-status" aria-live="polite"><span class="headcode-dot"></span><span id="headcode-status-text"></span></div>' +
+      '    <label class="sr-only" for="headcode-input">Custom head code snippets</label>' +
+      '    <textarea class="headcode-textarea" id="headcode-input" rows="9" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="<!-- Example: Google Tag Manager -->&#10;<script>window.dataLayer = window.dataLayer || [];</script>"></textarea>' +
+      '    <div class="headcode-count"><span id="headcode-chars">0</span> characters</div>' +
+      '    <p class="headcode-warn">' + icon('alert', 15) + '<span>Only paste code from sources you trust — snippets saved here run on every storefront page, for every visitor.</span></p>' +
+      '    <div class="headcode-actions">' +
+      '      <button type="button" class="btn btn--primary" id="headcode-save">Save &amp; apply</button>' +
+      '      <button type="button" class="btn btn--outline" id="headcode-clear">Remove code</button>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+    document.body.appendChild(modal);
+
+    modal.querySelector('.modal__close').addEventListener('click', function () {
+      if (openLayer && openLayer.name === 'headcode') { openLayer.close(); }
+    });
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal && openLayer && openLayer.name === 'headcode') { openLayer.close(); }
+    });
+
+    var ta = $('#headcode-input', modal);
+    ta.addEventListener('input', function () {
+      $('#headcode-chars').textContent = String(ta.value.length);
+    });
+
+    $('#headcode-save').addEventListener('click', function () {
+      var code = ta.value;
+      store.set(KEYS.headCode, code);
+      applyHeadCodeFromStore(); // live on this page; persists for every other page
+      updateHeadCodeStatus();
+      closeHeadCodeModal();
+      toast(code.trim()
+        ? 'Head code saved — injected into <head> on this page and all others.'
+        : 'Head code box was empty — nothing injected.', code.trim() ? 'success' : 'info');
+    });
+
+    $('#headcode-clear').addEventListener('click', function () {
+      ta.value = '';
+      $('#headcode-chars').textContent = '0';
+      store.remove(KEYS.headCode);
+      applyHeadCodeFromStore(); // strips previously injected nodes
+      updateHeadCodeStatus();
+      toast('Custom head code removed from all pages.', 'info');
+      ta.focus();
+    });
+  }
+
+  function updateHeadCodeStatus() {
+    var status = $('#headcode-status');
+    var txt = $('#headcode-status-text');
+    if (!status || !txt) { return; }
+    var code = getHeadCode();
+    if (code.trim()) {
+      status.classList.add('is-active');
+      txt.textContent = 'Active — ' + code.length.toLocaleString('en-US') + ' characters injected before </head> on every page.';
+    } else {
+      status.classList.remove('is-active');
+      txt.textContent = 'No custom code saved yet.';
+    }
+  }
+
+  function openHeadCodeModal() {
+    buildHeadCodeModal();
+    var modal = $('#headcode-modal');
+    if (!modal || modal.classList.contains('open')) { return; }
+    var ta = $('#headcode-input', modal);
+    ta.value = getHeadCode();
+    $('#headcode-chars').textContent = String(ta.value.length);
+    updateHeadCodeStatus();
+    modal.classList.add('open');
+    lockScroll(true);
+    var closeBtn = modal.querySelector('.modal__close');
+    if (closeBtn) { closeBtn.focus(); }
+    var release = trapFocus(modal);
+    setLayer('headcode', function () {
+      modal.classList.remove('open');
+      lockScroll(false);
+      release();
+      clearLayer('headcode');
+    });
+  }
+
+  function closeHeadCodeModal() {
+    var modal = $('#headcode-modal');
+    if (!modal || !modal.classList.contains('open')) { return; }
+    if (openLayer && openLayer.name === 'headcode') { openLayer.close(); }
   }
 
   function buildFooter() {

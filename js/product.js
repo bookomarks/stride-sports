@@ -125,9 +125,33 @@
     renderRelated();
     renderReviews();
     renderMobileBar();
+    fitBuyBox();
     // re-run reveal for newly injected sections
     observeNewReveals();
   }
+
+  /* ------------------------------------------------------------
+     Buy-box fit detection: when the sticky buy box's content fits the
+     viewport, drop its max-height/overflow so it never becomes a wheel
+     scroll container (which would swallow page scrolling while the
+     cursor hovers the options). On short viewports the box keeps its
+     internal scroll — and, with no `overscroll-behavior: contain`,
+     still chains to the page once it reaches its end.
+     ------------------------------------------------------------ */
+  function fitBuyBox() {
+    var bb = document.getElementById('buybox');
+    if (!bb) { return; }
+    bb.classList.remove('is-fit'); // restore CSS constraint for a clean measurement
+    if (!window.matchMedia('(min-width: 1024px)').matches) { return; }
+    if (bb.scrollHeight <= bb.clientHeight + 2) { bb.classList.add('is-fit'); }
+  }
+
+  var fitTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(fitTimer);
+    fitTimer = setTimeout(fitBuyBox, 150); // debounce (fonts/layout settle)
+  });
+  window.addEventListener('load', fitBuyBox); // late content shifts (fonts, images)
 
   var revealObserver = null;
   function observeNewReveals() {
