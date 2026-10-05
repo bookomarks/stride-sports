@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     STRIDE Sports Co. — index.html (homepage)
+     Static shell: header/footer/drawers are injected by js/main.js.
+     Homepage sections: hero, trust strip, categories, featured
+     products (rendered from js/data.js), promo banner with
+     countdown, testimonials, newsletter, footer.
+     ============================================================ -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="STRIDE Sports Co. — premium sports equipment with free shipping over $75 and cash on delivery. Running, strength, yoga, racket, team sports and cycling gear.">
+  <meta name="theme-color" content="#1F2733">
+  <title>STRIDE Sports Co. — Gear Up. Go Further.</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231F2733'/%3E%3Cpath d='M18 5 8 18h6l-2 9L24 13h-6l2-8z' fill='%23FF5A1F'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="home">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div id="announcement-root"></div>
+  <div id="header-root"></div>
+
+  <main id="main">
+    <noscript>
+      <p style="padding:16px;text-align:center;background:#FDECEA;color:#B42318;font-weight:700">
+        This store requires JavaScript for the shopping cart and product catalog. Please enable JavaScript and reload.
+      </p>
+    </noscript>
+
+    <!-- 1. HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+      <img class="hero__bg" src="https://picsum.photos/seed/stride-hero-main/1600/900" alt="Athlete training with sports equipment at sunrise" width="1600" height="900" fetchpriority="high" decoding="async" onerror="this.onerror=null;this.style.display='none'">
+      <div class="hero__overlay" aria-hidden="true"></div>
+      <div class="container">
+        <div class="hero__content">
+          <span class="hero__kicker">Mid-season sale · up to 20% off</span>
+          <h1 class="hero__title" id="hero-title">Gear up.<br>Go <em>further</em>.</h1>
+          <p class="hero__sub">Premium running, strength, yoga, racket and cycling equipment — vetted by athletes, delivered to your door, paid on arrival.</p>
+          <div class="hero__cta">
+            <a class="btn btn--accent btn--lg" href="#featured">Shop Now</a>
+            <a class="btn btn--light btn--lg" href="#categories">Explore categories</a>
+          </div>
+          <div class="hero__stats" aria-label="Store statistics">
+            <div class="hero__stat"><b>57,000+</b><span>orders delivered</span></div>
+            <div class="hero__stat"><b>4.7 / 5</b><span>average rating</span></div>
+            <div class="hero__stat"><b>30-day</b><span>hassle-free returns</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. TRUST STRIP -->
+    <section class="trust-strip" aria-label="Why shop with us">
+      <div class="container trust-grid">
+        <div class="trust-item">
+          <span class="trust-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="6" width="13" height="10" rx="1.5"/><path d="M14.5 9h4l3 3.2V16h-7"/><circle cx="6" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/></svg></span>
+          <span><b>Free Shipping</b><span>On orders over $75</span></span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6.5" width="20" height="11" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M5.5 9.5v.01M18.5 14.5v.01"/></svg></span>
+          <span><b>Cash on Delivery</b><span>Pay when it arrives</span></span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 9.5a9 9 0 1 1-.5 4"/><polyline points="3.5 4 3.5 9.5 9 9.5"/></svg></span>
+          <span><b>30-Day Returns</b><span>No questions asked</span></span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3.2v5.1c0 4.6-3.2 8.6-7.5 10.2-4.3-1.6-7.5-5.6-7.5-10.2V6.2z"/><polyline points="9 11.5 11.2 13.7 15.2 9.7"/></svg></span>
+          <span><b>2-Year Warranty</b><span>On every product</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. CATEGORY TILES -->
+    <section class="section container" id="categories" aria-labelledby="cat-title">
+      <div class="section-head reveal">
+        <span class="kicker">Categories</span>
+        <h2 id="cat-title">Shop by sport</h2>
+        <p>Six disciplines, one obsession: gear that keeps up with you.</p>
+      </div>
+      <div class="cat-grid" id="category-grid">
+        <div class="skel skel-card" style="aspect-ratio:1/1.08;border-radius:18px"></div>
+        <div class="skel skel-card" style="aspect-ratio:1/1.08;border-radius:18px"></div>
+        <div class="skel skel-card" style="aspect-ratio:1/1.08;border-radius:18px"></div>
+        <div class="skel skel-card" style="aspect-ratio:1/1.08;border-radius:18px"></div>
+        <div class="skel skel-card" style="aspect-ratio:1/1.08;border-radius:18px"></div>
+        <div class="skel skel-card" style="aspect-ratio:1/1.08;border-radius:18px"></div>
+      </div>
+    </section>
+
+    <!-- 4. FEATURED PRODUCTS -->
+    <section class="section container" id="featured" aria-labelledby="feat-title" style="padding-top:0">
+      <div class="section-head reveal">
+        <span class="kicker">Featured</span>
+        <h2 id="feat-title">This season's favorites</h2>
+        <p>Hand-picked gear from our catalog — every item ships in days, not weeks.</p>
+      </div>
+      <div class="product-grid" id="featured-grid">
+        <div class="skel-card skel"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div>
+        <div class="skel-card skel"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div>
+        <div class="skel-card skel"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div>
+        <div class="skel-card skel"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div>
+        <div class="skel-card skel"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div>
+        <div class="skel-card skel"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div></div>
+      </div>
+    </section>
+
+    <!-- 5. PROMO BANNER + COUNTDOWN -->
+    <section class="section container" aria-labelledby="promo-title">
+      <div class="promo-banner reveal">
+        <div>
+          <span class="promo-banner__kicker">Mid-Season Sale</span>
+          <h2 class="promo-banner__title" id="promo-title">Up to 20% off. Ends soon.</h2>
+          <p class="promo-banner__text">Stack code <strong style="color:#fff">SPORT10</strong> on top of sale prices and push your training into a new gear. Free shipping over $75, always.</p>
+          <a class="btn btn--accent btn--lg" href="#featured">Shop the sale</a>
+        </div>
+        <div>
+          <p id="countdown-note" style="font-weight:800;color:#9AA3AF;margin:0 0 10px;letter-spacing:.08em;text-transform:uppercase;font-size:13px">Sale ends in</p>
+          <div class="countdown" id="countdown" role="timer" aria-label="Time remaining in the mid-season sale">
+            <div class="countdown__cell"><span class="countdown__num" data-cd="d">00</span><span class="countdown__label">Days</span></div>
+            <div class="countdown__cell"><span class="countdown__num" data-cd="h">00</span><span class="countdown__label">Hours</span></div>
+            <div class="countdown__cell"><span class="countdown__num" data-cd="m">00</span><span class="countdown__label">Mins</span></div>
+            <div class="countdown__cell"><span class="countdown__num" data-cd="s">00</span><span class="countdown__label">Secs</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. WHY SHOP WITH US / TESTIMONIALS -->
+    <section class="section container" id="about" aria-labelledby="testi-title">
+      <div class="section-head reveal">
+        <span class="kicker">Why Shop With Us</span>
+        <h2 id="testi-title">Trusted by athletes everywhere</h2>
+        <p>Real customers, real gear, real results — here is what they say after the first mile, the first rep, the first ride.</p>
+      </div>
+      <div class="testi-grid" id="testimonials-grid">
+        <div class="skel skel-card" style="height:220px;border-radius:18px"></div>
+        <div class="skel skel-card" style="height:220px;border-radius:18px"></div>
+        <div class="skel skel-card" style="height:220px;border-radius:18px"></div>
+        <div class="skel skel-card" style="height:220px;border-radius:18px"></div>
+      </div>
+    </section>
+
+    <!-- 7. NEWSLETTER -->
+    <section class="section newsletter" aria-labelledby="news-title">
+      <div class="container newsletter__inner reveal">
+        <span class="kicker" style="color:var(--c-primary);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.12em">Stay in the loop</span>
+        <h2 id="news-title">Get 10% off your first order</h2>
+        <p class="muted">Training tips, early access to drops and subscriber-only deals. One email a week, zero spam.</p>
+        <form class="newsletter__form" id="newsletter-form" novalidate>
+          <label class="sr-only" for="newsletter-email">Email address</label>
+          <input type="email" id="newsletter-email" name="email" placeholder="you@example.com" autocomplete="email" required>
+          <button type="submit" class="btn btn--primary">Subscribe</button>
+        </form>
+        <p class="newsletter__msg" id="newsletter-msg" role="status" aria-live="polite"></p>
+        <p class="newsletter__note">By subscribing you agree to our privacy policy. Unsubscribe anytime.</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="drawer-root"></div>
+  <div id="modal-root"></div>
+  <div class="toast-root" id="toast-root" aria-live="polite" aria-atomic="false"></div>
+  <div id="footer-root"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     STRIDE Sports Co. — checkout.html
+     Cash-on-Delivery checkout: LEFT = contact & shipping form
+     (full inline validation), RIGHT = sticky order summary.
+     js/checkout.js renders the summary, validates the form,
+     creates the order (SP-YYYY-XXXXXX), clears the cart and
+     redirects to thank-you.html?order=ID.
+     ============================================================ -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Secure checkout — pay on delivery. Review your order, tell us where to ship, done.">
+  <meta name="theme-color" content="#1F2733">
+  <title>Checkout | STRIDE Sports Co.</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231F2733'/%3E%3Cpath d='M18 5 8 18h6l-2 9L24 13h-6l2-8z' fill='%23FF5A1F'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="checkout">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div id="announcement-root"></div>
+  <div id="header-root"></div>
+
+  <main id="main">
+    <div class="container section" style="padding-top:32px">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="index.html">Home</a><span class="bc-sep">/</span>
+        <a href="index.html#featured">Cart</a><span class="bc-sep">/</span>
+        <span aria-current="page">Checkout</span>
+      </nav>
+      <h1 style="margin-bottom:24px">Checkout</h1>
+
+      <div class="error-banner" id="form-error-banner" role="alert"></div>
+
+      <div class="checkout__grid" id="checkout-grid">
+        <!-- LEFT: FORM -->
+        <div id="co-form-wrap">
+          <form id="checkout-form" novalidate>
+
+            <!-- 1. Contact -->
+            <section class="co-card" aria-labelledby="co-contact-title">
+              <h2 class="co-card__title" id="co-contact-title"><span class="step-num">1</span> Contact information</h2>
+              <div class="form-grid cols-2">
+                <div class="field span-2">
+                  <label for="f-fullname">Full name <span class="req">*</span></label>
+                  <input type="text" id="f-fullname" name="fullname" autocomplete="name" placeholder="Jordan Kim" required>
+                  <p class="field-error"></p>
+                </div>
+                <div class="field">
+                  <label for="f-email">Email <span class="req">*</span></label>
+                  <input type="email" id="f-email" name="email" autocomplete="email" placeholder="you@example.com" required>
+                  <p class="field-error"></p>
+                </div>
+                <div class="field">
+                  <label for="f-phone">Phone <span class="req">*</span></label>
+                  <input type="tel" id="f-phone" name="phone" autocomplete="tel" placeholder="(555) 123-4567" required>
+                  <p class="field-error"></p>
+                </div>
+              </div>
+            </section>
+
+            <!-- 2. Shipping -->
+            <section class="co-card" aria-labelledby="co-ship-title">
+              <h2 class="co-card__title" id="co-ship-title"><span class="step-num">2</span> Shipping address</h2>
+              <div class="form-grid cols-2">
+                <div class="field span-2">
+                  <label for="f-country">Country</label>
+                  <select id="f-country" name="country" disabled aria-describedby="country-note">
+                    <option value="US" selected>United States</option>
+                  </select>
+                  <p class="field-error"></p>
+                  <p class="file-note" id="country-note" style="margin-top:4px">We currently ship within the United States only.</p>
+                </div>
+                <div class="field span-2">
+                  <label for="f-state">State / Region <span class="req">*</span></label>
+                  <select id="f-state" name="state" autocomplete="address-level1" required>
+                    <option value="">Select your state…</option>
+                  </select>
+                  <p class="field-error"></p>
+                </div>
+                <div class="field">
+                  <label for="f-city">City <span class="req">*</span></label>
+                  <input type="text" id="f-city" name="city" autocomplete="address-level2" placeholder="Austin" required>
+                  <p class="field-error"></p>
+                </div>
+                <div class="field">
+                  <label for="f-zip">ZIP code <span class="req">*</span></label>
+                  <input type="text" id="f-zip" name="zip" inputmode="numeric" autocomplete="postal-code" placeholder="78701" maxlength="10" required>
+                  <p class="field-error"></p>
+                </div>
+                <div class="field span-2">
+                  <label for="f-address1">Street address <span class="req">*</span></label>
+                  <input type="text" id="f-address1" name="address1" autocomplete="address-line1" placeholder="1234 Pecan St" required>
+                  <p class="field-error"></p>
+                </div>
+                <div class="field span-2">
+                  <label for="f-address2">Apartment, suite, etc. <span class="optional">(optional)</span></label>
+                  <input type="text" id="f-address2" name="address2" autocomplete="address-line2" placeholder="Apt 4B">
+                  <p class="field-error"></p>
+                </div>
+                <div class="field span-2">
+                  <label for="f-notes">Order notes <span class="optional">(optional)</span></label>
+                  <textarea id="f-notes" name="notes" placeholder="Gate codes, delivery preferences…"></textarea>
+                  <p class="field-error"></p>
+                </div>
+              </div>
+
+              <label class="check-row"><input type="checkbox" id="f-diff"> Ship to a different address</label>
+
+              <div class="ship-diff" id="ship-diff">
+                <div class="form-grid cols-2">
+                  <div class="field span-2">
+                    <label for="d-name">Recipient name <span class="req">*</span></label>
+                    <input type="text" id="d-name" autocomplete="shipping name" placeholder="Whoever receives the parcel">
+                    <p class="field-error"></p>
+                  </div>
+                  <div class="field span-2">
+                    <label for="d-address1">Street address <span class="req">*</span></label>
+                    <input type="text" id="d-address1" placeholder="1234 Pecan St">
+                    <p class="field-error"></p>
+                  </div>
+                  <div class="field span-2">
+                    <label for="d-address2">Apartment, suite, etc. <span class="optional">(optional)</span></label>
+                    <input type="text" id="d-address2">
+                    <p class="field-error"></p>
+                  </div>
+                  <div class="field">
+                    <label for="d-city">City <span class="req">*</span></label>
+                    <input type="text" id="d-city" placeholder="Austin">
+                    <p class="field-error"></p>
+                  </div>
+                  <div class="field">
+                    <label for="d-state">State <span class="req">*</span></label>
+                    <select id="d-state"><option value="">Select…</option></select>
+                    <p class="field-error"></p>
+                  </div>
+                  <div class="field">
+                    <label for="d-zip">ZIP code <span class="req">*</span></label>
+                    <input type="text" id="d-zip" inputmode="numeric" maxlength="10" placeholder="78701">
+                    <p class="field-error"></p>
+                  </div>
+                </div>
+              </div>
+
+              <label class="check-row"><input type="checkbox" id="f-save-info" checked> Save this information for next time</label>
+            </section>
+
+            <!-- 3. Payment (COD) -->
+            <section class="co-card" aria-labelledby="co-pay-title">
+              <h2 class="co-card__title" id="co-pay-title"><span class="step-num">3</span> Payment</h2>
+              <div class="radio-card radio-card--locked">
+                <input type="radio" name="payment" id="pay-cod" value="cod" checked disabled aria-describedby="cod-note">
+                <span>
+                  <b>Cash on Delivery</b>
+                  <p class="note" id="cod-note">Pay when your order arrives. Inspect your items at the door, then pay the courier in cash or by card. No prepayment, no card details required — that is the point.</p>
+                </span>
+              </div>
+              <p class="file-note" style="margin-top:10px">The only payment method available at checkout. Your order total is collected on delivery.</p>
+            </section>
+
+            <!-- 4. Terms -->
+            <section class="co-card" aria-labelledby="co-terms-title">
+              <h2 class="co-card__title" id="co-terms-title"><span class="step-num">4</span> Confirmation</h2>
+              <label class="check-row" style="margin-bottom:6px">
+                <input type="checkbox" id="f-terms" required>
+                <span>I agree to the <button type="button" class="link" data-policy="shipping" style="background:none;padding:0;font-weight:700;text-decoration:underline;color:var(--c-primary)">Shipping Policy</button> and <button type="button" class="link" data-policy="returns" style="background:none;padding:0;font-weight:700;text-decoration:underline;color:var(--c-primary)">Terms &amp; Conditions</button> <span class="req">*</span></span>
+              </label>
+              <p class="field-error" id="terms-error" style="margin-top:4px">You must accept the Terms &amp; Conditions to place your order.</p>
+            </section>
+
+            <button type="submit" class="btn btn--primary btn--lg btn--block" id="place-order" style="margin-top:20px">
+              <span class="spinner" aria-hidden="true"></span>
+              Place Order — Pay on Delivery
+            </button>
+          </form>
+        </div>
+
+        <!-- RIGHT: ORDER SUMMARY -->
+        <aside class="co-aside" id="co-aside" aria-label="Order summary">
+          <div class="co-card co-summary">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h2 style="margin:0;font-size:20px">Order summary</h2>
+              <a class="co-edit-link" href="index.html#featured">Edit cart</a>
+            </div>
+            <div class="co-items" id="co-items"></div>
+            <div id="co-promo-box"></div>
+            <div class="sum-lines">
+              <div class="sum-line"><span>Subtotal</span><span id="sum-subtotal">$0.00</span></div>
+              <div class="sum-line discount" id="sum-discount-row" hidden><span>Discount</span><span id="sum-discount">−$0.00</span></div>
+              <div class="sum-line"><span>Shipping <span id="sum-shipping-note" style="font-size:12px;display:block"></span></span><span id="sum-shipping">—</span></div>
+              <div class="sum-line"><span>Tax estimate</span><span id="sum-tax">—</span></div>
+              <div class="sum-line sum-line--total"><span>Total</span><span id="sum-total">$0.00</span></div>
+            </div>
+            <p class="file-note" style="margin-top:12px">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px" aria-hidden="true"><path d="M12 3l7.5 3.2v5.1c0 4.6-3.2 8.6-7.5 10.2-4.3-1.6-7.5-5.6-7.5-10.2V6.2z"/></svg>
+              Nothing is charged online — you pay the courier on delivery.
+            </p>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Empty cart state -->
+      <div class="co-card co-empty" id="co-empty" hidden>
+        <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.3 11.2a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.55L21 8H6"/><circle cx="9.7" cy="20" r="1.4"/><circle cx="17.3" cy="20" r="1.4"/></svg>
+        <h2>Your cart is empty</h2>
+        <p class="muted">Add some gear before checking out — your next PR is waiting.</p>
+        <a class="btn btn--primary" href="index.html#featured" style="margin-top:12px">Browse products</a>
+      </div>
+    </div>
+  </main>
+
+  <div id="drawer-root"></div>
+  <div id="modal-root"></div>
+  <div class="toast-root" id="toast-root" aria-live="polite" aria-atomic="false"></div>
+  <div id="footer-root"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/checkout.js"></script>
+</body>
+</html>

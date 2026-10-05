@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     STRIDE Sports Co. — thank-you.html (order confirmation)
+     Renders the placed order from localStorage (saved by
+     js/checkout.js): animated success checkmark, copyable order
+     ID, itemized recap, COD payment note, delivery estimate and
+     a 3-step timeline. Guarded against missing/invalid orders.
+     Usage: thank-you.html?order=SP-YYYY-XXXXXX
+     ============================================================ -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Order confirmed — thank you for shopping with STRIDE Sports Co.">
+  <meta name="theme-color" content="#1F2733">
+  <title>Thank you for your order! | STRIDE Sports Co.</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231F2733'/%3E%3Cpath d='M18 5 8 18h6l-2 9L24 13h-6l2-8z' fill='%23FF5A1F'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="thankyou">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div id="announcement-root"></div>
+  <div id="header-root"></div>
+
+  <main id="main">
+    <div class="container ty-wrap">
+
+      <!-- Success content (populated by js/checkout.js) -->
+      <div id="ty-content">
+        <div class="ty-card">
+          <svg class="ty-check" viewBox="0 0 100 100" role="img" aria-label="Order placed successfully">
+            <circle cx="50" cy="50" r="46"></circle>
+            <path d="M30 52 L44 66 L72 37"></path>
+          </svg>
+          <h1 class="ty-title">Thank you for your order!</h1>
+          <p class="ty-sub" id="ty-email-note">A confirmation email is on its way.</p>
+          <p class="muted" id="ty-placed-date" style="margin-top:8px;font-size:14px;font-weight:600"></p>
+
+          <div class="ty-orderid">
+            <span class="muted" style="font-weight:700;font-size:14px">Order ID</span>
+            <code id="ty-order-id">SP-0000-000000</code>
+            <button type="button" class="copy-btn" id="copy-order-id" aria-label="Copy order ID to clipboard">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5.5 15H4.8A1.8 1.8 0 0 1 3 13.2v-8A1.8 1.8 0 0 1 4.8 3.5h8A1.8 1.8 0 0 1 14.5 5.3V6"/></svg>
+              <span class="copy-label">Copy</span>
+            </button>
+          </div>
+
+          <div class="ty-timeline" aria-label="What happens next">
+            <div class="ty-step ty-step--done" id="ty-step-placed">
+              <span class="ty-step__icon"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6.5 9.5 17 4 11.5"/></svg></span>
+              <span><b>Order placed</b><span>We received your order</span></span>
+            </div>
+            <div class="ty-step">
+              <span class="ty-step__icon"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8.2 12 3 3 8.2v7.6L12 21l9-5.2z"/><polyline points="3 8.2 12 13.4 21 8.2"/><line x1="12" y1="13.4" x2="12" y2="21"/></svg></span>
+              <span><b>Packed &amp; shipped</b><span>Tracking link by email</span></span>
+            </div>
+            <div class="ty-step">
+              <span class="ty-step__icon"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6.5" width="20" height="11" rx="2"/><circle cx="12" cy="12" r="2.6"/></svg></span>
+              <span><b>Pay on delivery</b><span>Cash or card at the door</span></span>
+            </div>
+          </div>
+
+          <div class="ty-summary">
+            <div class="co-card">
+              <h2 style="font-size:20px;margin-bottom:16px">Order summary</h2>
+              <div class="co-items" id="ty-items"></div>
+              <div class="sum-lines">
+                <div class="sum-line"><span>Subtotal</span><span id="ty-subtotal">$0.00</span></div>
+                <div class="sum-line discount" id="ty-discount-row" hidden><span>Discount</span><span id="ty-discount">−$0.00</span></div>
+                <div class="sum-line"><span>Shipping</span><span id="ty-shipping">$0.00</span></div>
+                <div class="sum-line"><span>Tax estimate</span><span id="ty-tax">$0.00</span></div>
+                <div class="sum-line sum-line--total"><span>Total</span><span id="ty-total">$0.00</span></div>
+              </div>
+              <p class="rev-summary__meta" style="margin-top:12px" id="ty-payment"></p>
+              <div style="border-top:1px dashed var(--c-line);margin-top:14px;padding-top:14px">
+                <p style="margin:0 0 4px;font-weight:800;color:var(--c-ink);font-size:14px">Delivery address</p>
+                <p style="margin:0;font-size:14px;line-height:1.7" id="ty-address"></p>
+                <p style="margin:12px 0 0;font-size:14px" id="ty-eta"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="ty-actions">
+            <a class="btn btn--primary btn--lg" href="index.html">Continue Shopping</a>
+            <button type="button" class="btn btn--outline btn--lg" id="print-receipt">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="7 8 7 3 17 3 17 8"/><path d="M7 17H4.5A1.5 1.5 0 0 1 3 15.5v-6A1.5 1.5 0 0 1 4.5 8h15A1.5 1.5 0 0 1 21 9.5v6a1.5 1.5 0 0 1-1.5 1.5H17"/><rect x="7" y="14" width="10" height="7" rx="1"/></svg>
+              Print Receipt
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guard: no/invalid order -->
+      <div class="no-order" id="ty-no-order" hidden>
+        <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8.2 12 3 3 8.2v7.6L12 21l9-5.2z"/><polyline points="3 8.2 12 13.4 21 8.2"/><line x1="12" y1="13.4" x2="12" y2="21"/></svg>
+        <h2>No order found</h2>
+        <p class="muted" style="max-width:420px;margin-inline:auto">We couldn't find this order. It may have been placed in another browser, or the link is incomplete. If you just ordered, check your email for the confirmation.</p>
+        <a class="btn btn--primary" href="index.html" style="margin-top:16px">Back to the shop</a>
+      </div>
+    </div>
+  </main>
+
+  <div id="drawer-root"></div>
+  <div id="modal-root"></div>
+  <div class="toast-root" id="toast-root" aria-live="polite" aria-atomic="false"></div>
+  <div id="footer-root"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/checkout.js"></script>
+</body>
+</html>
